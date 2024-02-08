@@ -1,5 +1,6 @@
 package com.techelevator;
 
-public class Goalie extends Player{
+public class Goalie extends Player {
 
+  Goalie() {}
 }
