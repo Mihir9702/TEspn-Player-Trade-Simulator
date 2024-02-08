@@ -1,15 +1,16 @@
 package com.techelevator;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Player {
 
   private String firstName = "";
   private String lastName = "";
-  private double capSpace;
-  private int jerseyNumber;
+  private double capSpace = 0.0;
+  private int jerseyNumber = 0;
   private String position = "";
-  Map<String, Integer> stats;
+  Map<String, Integer> stats = new HashMap<>();
 
   public Player(
     String firstName,

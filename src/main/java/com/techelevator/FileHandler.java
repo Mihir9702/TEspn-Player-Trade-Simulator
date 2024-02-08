@@ -6,12 +6,12 @@ import java.util.*;
 public class FileHandler {
 
   private List<Team> teams = new ArrayList<>();
-  private File[] files = new File[12];
+  private File[] files;
   private List<Player> players = new ArrayList<>();
   private String teamName = "";
 
   public void show() {
-    System.out.println(teams);
+    teams.forEach(team -> System.out.println(team.getPlayers().size()));
   }
 
   private Map<String, String> allStats = new HashMap<>(
@@ -27,58 +27,52 @@ public class FileHandler {
 
   public void run() {
     File folder = new File("TeamData"); // folder path
-    files = folder.listFiles(); // returns an array of files
+    files = folder.listFiles();
 
     int fileIndex = 1;
 
-    for (File file : folder.listFiles()) { // looping through all files in the folder
-      handleFile(file, fileIndex);
-    }
-  }
+    for (File file : files) {
+      String fileName = file.getName();
+      String[] fileNameSplit = fileName.split("_");
 
-  public void handleFile(File file, int fileIndex) {
-    // whatever we wanna do for each file
-    // for each file we want to manipulate the data
-    // 10|name|position|etc
+      teamName = fileNameSplit[0] + " " + fileNameSplit[1];
 
-    String fileName = file.getName();
-    String[] fileNameSplit = fileName.split("_");
+      try (Scanner fileScanner = new Scanner(file)) {
+        while (fileScanner.hasNextLine()) {
+          String line = fileScanner.nextLine();
+          String[] data = line.split("|"); // [10, name, position]
 
-    teamName = fileNameSplit[0] + " " + fileNameSplit[1];
-
-    try (Scanner fileScanner = new Scanner(file)) {
-      fileScanner
-        .tokens()
-        .skip(1)
-        .forEach(line -> {
           try {
-            handleLine(line);
-          } catch (NumberFormatException e) {}
-        });
-    } catch (FileNotFoundException e) {}
+            int jerseyNumber = Integer.parseInt(data[0]); // ! Stuck on first / second or third line with the first line
+            String firstName = data[1];
+            String lastName = data[2];
+            String position = data[3];
+            double capSpace = Double.parseDouble(data[4]);
+            Map<String, Integer> stats = getStats(data, position);
 
-    if (fileIndex % 3 == 0 && fileIndex != 0) {
-      teams.add(new Team(teamName, players));
+            players.add(
+              new Player(
+                firstName,
+                lastName,
+                capSpace,
+                jerseyNumber,
+                position,
+                stats
+              )
+            );
+          } catch (NumberFormatException e) {}
+        }
+      } catch (FileNotFoundException e) {}
+
+      if (fileIndex % 3 == 0 && fileIndex != 0) {
+        teams.add(new Team(teamName, players));
+        players.clear();
+      }
+
+      fileIndex++;
     }
 
-    fileIndex++;
-  }
-
-  public void handleLine(String line) throws NumberFormatException {
-    String[] data = line.split("|"); // [10, name, position]
-
-    try {
-      int jerseyNumber = Integer.parseInt(data[0]);
-      String firstName = data[1];
-      String lastName = data[2];
-      String position = data[3];
-      double capSpace = Double.parseDouble(data[4]);
-      Map<String, Integer> stats = getStats(data, position);
-
-      players.add(
-        new Player(firstName, lastName, capSpace, jerseyNumber, position, stats)
-      );
-    } catch (NumberFormatException e) {}
+    show();
   }
 
   public Map<String, Integer> getStats(String[] data, String position) {
