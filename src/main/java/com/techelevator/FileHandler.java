@@ -9,6 +9,7 @@ public class FileHandler {
   private File[] files;
   private List<Player> players = new ArrayList<>();
   private String teamName = "";
+  private List<List<String>> lines = new ArrayList<List<String>>();
 
   public void show() {
     teams.forEach(team -> System.out.println(team.getPlayers().size()));
@@ -40,27 +41,44 @@ public class FileHandler {
       try (Scanner fileScanner = new Scanner(file)) {
         while (fileScanner.hasNextLine()) {
           String line = fileScanner.nextLine();
-          String[] data = line.split("|"); // [10, name, position]
 
-          try {
-            int jerseyNumber = Integer.parseInt(data[0]); // ! Stuck on first / second or third line with the first line
-            String firstName = data[1];
-            String lastName = data[2];
-            String position = data[3];
-            double capSpace = Double.parseDouble(data[4]);
-            Map<String, Integer> stats = getStats(data, position);
+          if (line.contains("POS")) {
+            continue;
+          } else {
+            String[] data = line.split("|"); // [10, name, position]
+            // System.out.println(line);
+            int firstPipe = line.indexOf("|");
+            String ns = line.substring(0, firstPipe); // 35
+            // **********
+            // **********
+            // **********
+            // **********
+            for (List<String> oneLine : lines) {
+              System.out.println(oneLine);
+            }
 
-            players.add(
-              new Player(
-                firstName,
-                lastName,
-                capSpace,
-                jerseyNumber,
-                position,
-                stats
-              )
-            );
-          } catch (NumberFormatException e) {}
+            try {
+              // System.out.println(Arrays.toString(data));
+              int jerseyNumber = Integer.parseInt("" + data[0] + data[1]);
+              // System.out.println(jerseyNumber);
+              String firstName = data[1];
+              String lastName = data[2];
+              String position = data[3];
+              double capSpace = Double.parseDouble(data[4]);
+              Map<String, Integer> stats = getStats(data, position);
+
+              players.add(
+                new Player(
+                  firstName,
+                  lastName,
+                  capSpace,
+                  jerseyNumber,
+                  position,
+                  stats
+                )
+              );
+            } catch (NumberFormatException e) {}
+          }
         }
       } catch (FileNotFoundException e) {}
 
@@ -71,8 +89,7 @@ public class FileHandler {
 
       fileIndex++;
     }
-
-    show();
+    // show();
   }
 
   public Map<String, Integer> getStats(String[] data, String position) {
