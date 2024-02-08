@@ -5,7 +5,7 @@ import java.util.*;
 
 public class FileHandler {
 
-  private List<Team> teams = new ArrayList<>();
+  private List<Team> teams;
   private File[] files = new File[12];
   private List<Player> players = new ArrayList<>();
   private String teamName = "";
@@ -46,26 +46,28 @@ public class FileHandler {
 
     teamName = fileNameSplit[0] + " " + fileNameSplit[1];
 
+    int i = 0;
     try (Scanner fileScanner = new Scanner(file)) {
-      fileScanner
-        .tokens()
-        .skip(1)
-        .forEach(line -> {
-          try {
-            handleLine(line);
-          } catch (NumberFormatException e) {}
-        });
+      while (fileScanner.hasNextLine()) {
+        if (i == 0) {
+          i++;
+        } else {
+          String line = fileScanner.nextLine();
+          handleLine(line);
+        }
+      }
+      i = 0;
     } catch (FileNotFoundException e) {}
 
-    if (fileIndex % 3 == 0 && fileIndex != 0) {
+    if (fileNameSplit[2].equals("Goalies")) {
       teams.add(new Team(teamName, players));
     }
 
     fileIndex++;
   }
 
-  public void handleLine(String line) throws NumberFormatException {
-    String[] data = line.split("|"); // [10, name, position]
+  public void handleLine(String line) {
+    String[] data = line.split("\\|"); // [10, name, position]
 
     try {
       int jerseyNumber = Integer.parseInt(data[0]);
@@ -78,7 +80,9 @@ public class FileHandler {
       players.add(
         new Player(firstName, lastName, capSpace, jerseyNumber, position, stats)
       );
-    } catch (NumberFormatException e) {}
+    } catch (NumberFormatException e) {
+      // System.out.println("num format exception");
+    }
   }
 
   public Map<String, Integer> getStats(String[] data, String position) {
