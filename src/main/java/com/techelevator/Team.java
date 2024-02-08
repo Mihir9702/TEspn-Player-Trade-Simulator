@@ -4,12 +4,16 @@ import java.util.List;
 
 public class Team {
 
-  // private final String BOSTON_BRUINS = "";
-  // private final String CAROLINA_HURRICANES = "";
-  // private final String PITTSBURGH_PENGUINS = "";
-  // private final String SEATTLE_KRAKEN = " ";
   private final String name;
-  private final List<Player> players;
+  private List<Player> players;
+
+  public String getName() {
+    return name;
+  }
+
+  public List<Player> getPlayers() {
+    return players;
+  }
 
   public Team(String name, List<Player> players) {
     this.name = name;

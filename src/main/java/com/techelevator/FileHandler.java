@@ -5,13 +5,14 @@ import java.util.*;
 
 public class FileHandler {
 
-  private List<Team> teams;
-  private File[] files = new File[12];
+  private List<Team> teams = new ArrayList<>();
+  private File[] files;
   private List<Player> players = new ArrayList<>();
   private String teamName = "";
+  private List<List<String>> lines = new ArrayList<List<String>>();
 
   public void show() {
-    System.out.println(teams);
+    teams.forEach(team -> System.out.println(team.getPlayers().size()));
   }
 
   private Map<String, String> allStats = new HashMap<>(
@@ -27,62 +28,68 @@ public class FileHandler {
 
   public void run() {
     File folder = new File("TeamData"); // folder path
-    files = folder.listFiles(); // returns an array of files
+    files = folder.listFiles();
 
     int fileIndex = 1;
 
-    for (File file : folder.listFiles()) { // looping through all files in the folder
-      handleFile(file, fileIndex);
-    }
-  }
+    for (File file : files) {
+      String fileName = file.getName();
+      String[] fileNameSplit = fileName.split("_");
 
-  public void handleFile(File file, int fileIndex) {
-    // whatever we wanna do for each file
-    // for each file we want to manipulate the data
-    // 10|name|position|etc
+      teamName = fileNameSplit[0] + " " + fileNameSplit[1];
 
-    String fileName = file.getName();
-    String[] fileNameSplit = fileName.split("_");
-
-    teamName = fileNameSplit[0] + " " + fileNameSplit[1];
-
-    int i = 0;
-    try (Scanner fileScanner = new Scanner(file)) {
-      while (fileScanner.hasNextLine()) {
-        if (i == 0) {
-          i++;
-        } else {
+      try (Scanner fileScanner = new Scanner(file)) {
+        while (fileScanner.hasNextLine()) {
           String line = fileScanner.nextLine();
-          handleLine(line);
+
+          if (line.contains("POS")) {
+            continue;
+          } else {
+            String[] data = line.split("|"); // [10, name, position]
+            // System.out.println(line);
+            int firstPipe = line.indexOf("|");
+            String ns = line.substring(0, firstPipe); // 35
+            // **********
+            // **********
+            // **********
+            // **********
+            for (List<String> oneLine : lines) {
+              System.out.println(oneLine);
+            }
+
+            try {
+              // System.out.println(Arrays.toString(data));
+              int jerseyNumber = Integer.parseInt("" + data[0] + data[1]);
+              // System.out.println(jerseyNumber);
+              String firstName = data[1];
+              String lastName = data[2];
+              String position = data[3];
+              double capSpace = Double.parseDouble(data[4]);
+              Map<String, Integer> stats = getStats(data, position);
+
+              players.add(
+                new Player(
+                  firstName,
+                  lastName,
+                  capSpace,
+                  jerseyNumber,
+                  position,
+                  stats
+                )
+              );
+            } catch (NumberFormatException e) {}
+          }
         }
+      } catch (FileNotFoundException e) {}
+
+      if (fileIndex % 3 == 0 && fileIndex != 0) {
+        teams.add(new Team(teamName, players));
+        players.clear();
       }
-      i = 0;
-    } catch (FileNotFoundException e) {}
 
-    if (fileNameSplit[2].equals("Goalies")) {
-      teams.add(new Team(teamName, players));
+      fileIndex++;
     }
-
-    fileIndex++;
-  }
-
-  public void handleLine(String line) {
-    String[] data = line.split("\\|"); // [10, name, position]
-
-    try {
-      int jerseyNumber = Integer.parseInt(data[0]);
-      String firstName = data[1];
-      String lastName = data[2];
-      String position = data[3];
-      double capSpace = Double.parseDouble(data[4]);
-      Map<String, Integer> stats = getStats(data, position);
-
-      players.add(
-        new Player(firstName, lastName, capSpace, jerseyNumber, position, stats)
-      );
-    } catch (NumberFormatException e) {
-      // System.out.println("num format exception");
-    }
+    // show();
   }
 
   public Map<String, Integer> getStats(String[] data, String position) {
