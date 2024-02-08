@@ -103,6 +103,7 @@ Below is an example workflow.
     > (42) Player 2
     > (83) Player 3
     > ...
+    > Select another player?
     > ```
    3. Select Team with which to trade (cannot trade to the same team)
     > ```
@@ -122,6 +123,7 @@ Below is an example workflow.
     > (42) Player 2
     > (83) Player 3
     > ...
+    > Select another player? 
     > ```
     5. Make Trade
     The `Make Trade` menu should display the team names and player name with a yes/no option:
@@ -172,7 +174,7 @@ acquired if there is a conflict.
    - Each transaction must generate a line in a file called `Log.txt`.
    - The lines must follow the format shown in the following example.
         > ```
-        > 01/01/2019 12:00:00 PM Team Name Player Name <-> Team Name Player Name Confirmed
+        > 01/01/2019 12:00:00 PM Team Name Player Name, Player Name <-> Team Name Player Name Confirmed
         > 01/01/2019 12:00:10 PM Team Name Player Name <-> Team Name Player Name Denied
         > 01/01/2019 12:00:15 PM Team Name Player Name -- Waived 
         > 01/01/2019 12:00:30 PM Team Name Player Name -- Claimed 
