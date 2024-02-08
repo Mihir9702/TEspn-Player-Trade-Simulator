@@ -1,5 +1,5 @@
 package com.techelevator;
 
-public class Loger {
+public class Logger {
 
 }

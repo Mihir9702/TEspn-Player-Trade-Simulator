@@ -1,5 +1,5 @@
 package com.techelevator;
 
-public class Defender {
+public class Defender extends Player {
 
 }

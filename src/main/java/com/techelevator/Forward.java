@@ -1,5 +1,5 @@
 package com.techelevator;
 
-public class Forward {
+public class Forward extends Player{
 
 }
