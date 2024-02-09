@@ -7,7 +7,7 @@ public class FileHandler {
 
   private List<Team> teams = new ArrayList<>();
   private File[] files;
-  private List<Player> players = new ArrayList<>();
+
   private String teamName = "";
 
   // * helper method for dev
@@ -31,8 +31,9 @@ public class FileHandler {
       "Goals|Assists"
     )
   );
+  private Player[] Player;
 
-  public void run() {
+  public String run() {
     File folder = new File("TeamData"); // folder path
     files = folder.listFiles();
 
@@ -82,5 +83,9 @@ public class FileHandler {
       } catch (FileNotFoundException e) {}
     }
     show();
+  }
+
+  public String[] wordSearch() {
+    for (Player p : Player) {}
   }
 }
