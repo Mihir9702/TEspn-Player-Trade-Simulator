@@ -17,14 +17,32 @@ public class Player {
     String lastName,
     double capSpace,
     int jerseyNumber,
-    String position,
-    Map<String, Integer> stats
+    String position
   ) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.capSpace = capSpace;
     this.jerseyNumber = jerseyNumber;
     this.position = position;
-    this.stats = stats;
+  }
+
+  public double getCapSpace() {
+    return capSpace;
+  }
+
+  public int getJerseyNumber() {
+    return jerseyNumber;
+  }
+
+  public String getPosition() {
+    return position;
+  }
+
+  public Map<String, Integer> getStats() {
+    return stats;
+  }
+
+  public String getName() {
+    return firstName + " " + lastName;
   }
 }
