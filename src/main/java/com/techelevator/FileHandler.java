@@ -45,7 +45,7 @@ public class FileHandler {
           if (line.contains("POS")) {
             continue;
           } else {
-            String[] data = line.split("|"); // [10, name, position]
+            String[] data = line.split("\\|"); // [10, name, position]
             // System.out.println(line);
             int firstPipe = line.indexOf("|");
             String ns = line.substring(0, firstPipe); // 35
