@@ -45,28 +45,38 @@ public class FileHandler {
           if (line.contains("POS")) {
             continue;
           } else {
-            String[] data = line.split("|"); // [10, name, position]
-            // System.out.println(line);
-            int firstPipe = line.indexOf("|");
-            String ns = line.substring(0, firstPipe); // 35
-            // **********
-            // **********
-            // **********
-            // **********
-            for (List<String> oneLine : lines) {
-              System.out.println(oneLine);
-            }
+            String[] data = line.split("\\|");
 
             try {
-              // System.out.println(Arrays.toString(data));
-              int jerseyNumber = Integer.parseInt("" + data[0] + data[1]);
-              // System.out.println(jerseyNumber);
+              int jerseyNumber = Integer.parseInt(data[0]);
               String firstName = data[1];
               String lastName = data[2];
               String position = data[3];
               double capSpace = Double.parseDouble(data[4]);
-              Map<String, Integer> stats = getStats(data, position);
+              Map<String, Integer> stats = new HashMap<>();
 
+              String statName1 = "";
+              String statName2 = "";
+              int statVal1 = Integer.parseInt(data[5]);
+              int statVal2 = Integer.parseInt(data[6]);
+
+              for (Map.Entry<String, String> entry : allStats.entrySet()) {
+                if (position.equals(entry.getKey())) {
+                  if (entry.getValue().contains("|")) {
+                    String[] statsArr = entry.getValue().split("\\|");
+                    statName1 = statsArr[0];
+                    statName2 = statsArr[1];
+                  } else {
+                    String[] statsArr = entry.getValue().split("_");
+                    statName1 = statsArr[0];
+                    statName2 = statsArr[1];
+                  }
+                }
+              }
+              stats.put(statName1, statVal1);
+              stats.put(statName2, statVal2);
+
+              System.out.println(stats);
               players.add(
                 new Player(
                   firstName,
@@ -89,29 +99,30 @@ public class FileHandler {
 
       fileIndex++;
     }
-    // show();
+    show();
   }
+  // ! getStats method is not working
+  // public Map<String, Integer> getStats(String[] data, String position) {
+  //   String statName1 = "";
+  //   String statName2 = "";
+  //   int statVal1 = Integer.parseInt(data[5]);
+  //   int statVal2 = Integer.parseInt(data[6]);
 
-  public Map<String, Integer> getStats(String[] data, String position) {
-    String statName1 = "";
-    String statName2 = "";
+  //   // { goalie: stat1_stat2, forward: stat1_stat2, defender: stat1_stat2 }
+  //   // getting key like goalie, forward, defender
+  //   // if position matches key goalie = goalie but goalie != forward
+  //   // we get the goalie: stat1_stat2 and split it
+  //   // stat1
+  //   // stat2
 
-    for (Map.Entry<String, String> entry : allStats.entrySet()) { // { goalie: stat1_stat2, forward: stat1_stat2, defender: stat1_stat2 }
-      String key = entry.getKey(); // getting key like goalie, forward, defender
-      if (key.equals(position)) { // if position matches key goalie = goalie but goalie != forward
-        String[] bothStats = entry.getValue().split("_"); // we get the goalie: stat1_stat2 and split it
-        statName1 = bothStats[0]; // stat1
-        statName2 = bothStats[1]; // stat2
-      }
-    }
+  //   for (Map.Entry<String, String> entry : allStats.entrySet()) {
+  //     if (position.equals(entry.getKey())) {
+  //       String[] stats = entry.getValue().split("_");
+  //       List<String> statsList = convert(stats);
+  //       System.out.println(statsList);
+  //     }
+  //   }
 
-    return new HashMap<String, Integer>(
-      Map.of(
-        statName1,
-        Integer.parseInt(data[5]),
-        statName2,
-        Integer.parseInt(data[6])
-      )
-    );
-  }
+  //   return new HashMap<>(Map.of(statName1, statVal1, statName2, statVal2));
+  // }
 }
