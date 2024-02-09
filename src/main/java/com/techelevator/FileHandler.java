@@ -9,10 +9,16 @@ public class FileHandler {
   private File[] files;
   private List<Player> players = new ArrayList<>();
   private String teamName = "";
-  private List<List<String>> lines = new ArrayList<List<String>>();
 
+  // * helper method for dev
   public void show() {
-    teams.forEach(team -> System.out.println(team.getPlayers().size()));
+    teams.forEach(team -> {
+      if (team.getPlayers().size() > 0) {
+        for (Player p : team.getPlayers()) {
+          System.out.println(p.getName());
+        }
+      }
+    });
   }
 
   private Map<String, String> allStats = new HashMap<>(
@@ -30,7 +36,7 @@ public class FileHandler {
     File folder = new File("TeamData"); // folder path
     files = folder.listFiles();
 
-    int fileIndex = 1;
+    int fileIndex = 0;
 
     for (File file : files) {
       String fileName = file.getName();
@@ -53,76 +59,28 @@ public class FileHandler {
               String lastName = data[2];
               String position = data[3];
               double capSpace = Double.parseDouble(data[4]);
-              Map<String, Integer> stats = new HashMap<>();
 
-              String statName1 = "";
-              String statName2 = "";
-              int statVal1 = Integer.parseInt(data[5]);
-              int statVal2 = Integer.parseInt(data[6]);
-
-              for (Map.Entry<String, String> entry : allStats.entrySet()) {
-                if (position.equals(entry.getKey())) {
-                  if (entry.getValue().contains("|")) {
-                    String[] statsArr = entry.getValue().split("\\|");
-                    statName1 = statsArr[0];
-                    statName2 = statsArr[1];
-                  } else {
-                    String[] statsArr = entry.getValue().split("_");
-                    statName1 = statsArr[0];
-                    statName2 = statsArr[1];
-                  }
-                }
-              }
-              stats.put(statName1, statVal1);
-              stats.put(statName2, statVal2);
-
-              System.out.println(stats);
               players.add(
                 new Player(
                   firstName,
                   lastName,
                   capSpace,
                   jerseyNumber,
-                  position,
-                  stats
+                  position
                 )
               );
             } catch (NumberFormatException e) {}
           }
         }
+
+        if (fileIndex % 3 == 0 && fileIndex != 0) {
+          teams.add(new Team(teamName, players));
+          players.clear();
+        }
+
+        fileIndex++;
       } catch (FileNotFoundException e) {}
-
-      if (fileIndex % 3 == 0 && fileIndex != 0) {
-        teams.add(new Team(teamName, players));
-        players.clear();
-      }
-
-      fileIndex++;
     }
     show();
   }
-  // ! getStats method is not working
-  // public Map<String, Integer> getStats(String[] data, String position) {
-  //   String statName1 = "";
-  //   String statName2 = "";
-  //   int statVal1 = Integer.parseInt(data[5]);
-  //   int statVal2 = Integer.parseInt(data[6]);
-
-  //   // { goalie: stat1_stat2, forward: stat1_stat2, defender: stat1_stat2 }
-  //   // getting key like goalie, forward, defender
-  //   // if position matches key goalie = goalie but goalie != forward
-  //   // we get the goalie: stat1_stat2 and split it
-  //   // stat1
-  //   // stat2
-
-  //   for (Map.Entry<String, String> entry : allStats.entrySet()) {
-  //     if (position.equals(entry.getKey())) {
-  //       String[] stats = entry.getValue().split("_");
-  //       List<String> statsList = convert(stats);
-  //       System.out.println(statsList);
-  //     }
-  //   }
-
-  //   return new HashMap<>(Map.of(statName1, statVal1, statName2, statVal2));
-  // }
 }
