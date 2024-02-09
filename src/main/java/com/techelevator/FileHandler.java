@@ -45,21 +45,7 @@ public class FileHandler {
           if (line.contains("POS")) {
             continue;
           } else {
-<<<<<<< HEAD
-            String[] data = line.split("\\|"); // [10, name, position]
-            // System.out.println(line);
-            int firstPipe = line.indexOf("|");
-            String ns = line.substring(0, firstPipe); // 35
-            // **********
-            // **********
-            // **********
-            // **********
-            for (List<String> oneLine : lines) {
-              System.out.println(oneLine);
-            }
-=======
             String[] data = line.split("\\|");
->>>>>>> d7f657474e1bd9781ed87f1b4d575af6884284c7
 
             try {
               int jerseyNumber = Integer.parseInt(data[0]);
