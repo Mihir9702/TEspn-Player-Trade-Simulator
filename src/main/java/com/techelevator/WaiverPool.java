@@ -6,7 +6,11 @@ public class WaiverPool {
 
   List<Player> players;
 
-  public WaiverPool(List<Player> players) {
-    this.players = players;
+  public List<Player> getPlayers() {
+    return players;
+  }
+
+  public void addPlayer(Player player) {
+    players.add(player);
   }
 }
