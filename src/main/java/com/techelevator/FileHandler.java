@@ -7,6 +7,7 @@ public class FileHandler {
 
   private List<Team> teams = new ArrayList<>();
   private File[] files;
+  private Scanner scanner = new Scanner(System.in);
 
   private String teamName = "";
 
@@ -60,24 +61,23 @@ public class FileHandler {
               String lastName = data[2];
               String position = data[3];
               double capSpace = Double.parseDouble(data[4]);
-
-              players.add(
-                new Player(
-                  firstName,
-                  lastName,
-                  capSpace,
-                  jerseyNumber,
-                  position
-                )
-              );
+              // players.add(
+              //   new Player(
+              //     firstName,
+              //     lastName,
+              //     capSpace,
+              //     jerseyNumber,
+              //     position
+              //   )
+              //);
             } catch (NumberFormatException e) {}
           }
         }
 
-        if (fileIndex % 3 == 0 && fileIndex != 0) {
-          teams.add(new Team(teamName, players));
-          players.clear();
-        }
+        // if (fileIndex % 3 == 0 && fileIndex != 0) {
+        //   teams.add(new Team(teamName, players));
+        //   players.clear();
+        // }
 
         fileIndex++;
       } catch (FileNotFoundException e) {}
@@ -85,7 +85,13 @@ public class FileHandler {
     show();
   }
 
-  public String[] wordSearch() {
-    for (Player p : Player) {}
+  public void wordSearch() {
+    String word = scanner.nextLine();
+    for (Team p : teams) {
+      if (p.getPlayers().contains("sam")) {
+        p.getPlayers();
+      }
+      System.out.println(p);
+    }
   }
 }
