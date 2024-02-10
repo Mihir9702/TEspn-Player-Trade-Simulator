@@ -26,6 +26,20 @@ public class Player {
     this.position = position;
   }
 
+  public void show() {
+    System.out.println(
+      jerseyNumber +
+      " " +
+      firstName +
+      " " +
+      lastName +
+      " " +
+      position +
+      " " +
+      capSpace
+    );
+  }
+
   public double getCapSpace() {
     return capSpace;
   }
