@@ -39,7 +39,7 @@ public class FileHandler {
     File folder = new File("TeamData"); // folder path
     files = folder.listFiles();
 
-    int fileIndex = 0;
+    int fileIndex = 1;
 
     for (File file : files) {
       String fileName = file.getName();
