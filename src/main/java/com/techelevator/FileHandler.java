@@ -8,6 +8,7 @@ public class FileHandler {
   private List<Team> teams = new ArrayList<>();
   private File[] files;
   private Scanner scanner = new Scanner(System.in);
+  private List<Player> players = new ArrayList<>();
 
   private String teamName = "";
 
@@ -34,7 +35,7 @@ public class FileHandler {
   );
   private Player[] Player;
 
-  public String run() {
+  public void run() {
     File folder = new File("TeamData"); // folder path
     files = folder.listFiles();
 

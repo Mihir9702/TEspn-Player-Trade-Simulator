@@ -1,5 +1,6 @@
 package com.techelevator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Team {
@@ -24,7 +25,7 @@ public class Team {
 
   public Team(String name, List<Player> players) {
     this.name = name;
-    this.players = players;
+    this.players = new ArrayList<>();
   }
 
   public Player findPlayerByJerseyNumber(int jerseyNumber) {
