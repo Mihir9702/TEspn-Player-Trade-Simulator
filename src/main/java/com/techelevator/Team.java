@@ -8,7 +8,6 @@ public class Team {
   private final String name;
   private List<Player> players;
   private double capSpace = 80_500_000.00;
-
   public int maxPlayers = 23;
 
   public double getCapSpace() {
@@ -38,10 +37,25 @@ public class Team {
   }
 
   public void show() {
-    // > 1) Boston Bruins       Players: 22 - Cap Space: $2,730,000.00
-    System.out.println(
-      name + "\tPlayers: " + players.size() + " - Cap Space: $" + capSpace
-    );
+    String message =
+      getPlayers().size() + " - Cap Space: " + this.getCapSpace();
+
+    switch (name) {
+      case "Boston Bruins":
+        System.out.println("1) Boston Bruins\tPlayers: " + message);
+        break;
+      case "Carolina Hurricanes":
+        System.out.println("2) Carolina Hurricanes\tPlayers: " + message);
+        break;
+      case "Pittsburgh Penguins":
+        System.out.println("3) Pittsburgh Penguins\tPlayers: " + message);
+        break;
+      case "Seattle Kraken":
+        System.out.println("4) Seattle Kraken\tPlayers: " + message);
+        break;
+      default:
+        System.out.println("Invalid team name");
+    }
   }
 
   public void addPlayer(Player player) {

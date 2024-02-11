@@ -10,20 +10,22 @@ public class Player {
   private double capSpace = 0.0;
   private int jerseyNumber = 0;
   private String position = "";
-  Map<String, Integer> stats = new HashMap<>();
+  Map<String, Integer> stats;
 
   public Player(
+    int jerseyNumber,
     String firstName,
     String lastName,
+    String position,
     double capSpace,
-    int jerseyNumber,
-    String position
+    Map<String, Integer> stats
   ) {
     this.firstName = firstName;
     this.lastName = lastName;
     this.capSpace = capSpace;
     this.jerseyNumber = jerseyNumber;
     this.position = position;
+    this.stats = stats;
   }
 
   public void show() {

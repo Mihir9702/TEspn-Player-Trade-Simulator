@@ -7,8 +7,8 @@ public class Menu {
 
   /* to do
    * print trade confirmation
-   * waiver pool
    * log
+   * unit tests
    */
 
   private List<Team> teams = new ArrayList<>();
@@ -22,6 +22,8 @@ public class Menu {
   private String team1Name = "";
   private String team2Name = "";
 
+  private Logger log = new Logger();
+
   public void run() {
     files = getFiles();
     createPlayersAndTeams();
@@ -34,8 +36,8 @@ public class Menu {
    * selection.
    */
   public void printMainMenu() {
-    System.out.println(
-      "\n(1) Display Teams\n(2) Make a Trade\n(3) Pick up a Player\n(4) Find Player\n(5) Exit\n\nMake a selection:"
+    System.out.print(
+      "\n(1) Display Teams\n(2) Make a Trade\n(3) Pick up a Player\n(4) Find Player\n(5) Exit\n\nMake a selection: "
     );
 
     String input = userInput.nextLine();
@@ -75,17 +77,18 @@ public class Menu {
    remove player from waiver pool
  */
   public void pickUpPlayer() {
-    boolean isTrade = false;
-
     System.out.println("Pick up a Player");
 
     for (Team team : teams) {
       team.show();
     }
 
-    System.out.println("Select Team to Pick Up Player");
-
+    System.out.println("Select a team for the player to join (Q for quit): ");
     String input = userInput.nextLine();
+
+    if (input.equals("Q") || input.equals("q")) {
+      printMainMenu();
+    }
 
     switch (input) {
       case "1":
@@ -105,7 +108,7 @@ public class Menu {
         pickUpPlayer();
     }
 
-    printPlayers(teamName, isTrade);
+    printWaiverPlayers();
 
     System.out.println(
       "Enter the jersey number of the player you would like to pick up:"
@@ -113,18 +116,25 @@ public class Menu {
 
     int jerseyNumber = Integer.parseInt(userInput.nextLine());
 
-    for (Team team : teams) {
-      if (team.getName().equals(teamName)) {
-        for (Player player : team.getPlayers()) {
-          if (player.getJerseyNumber() == jerseyNumber) {
-            team.removePlayer(player);
-            waiverPool.addPlayer(player);
+    if (jerseyNumber == 0) {
+      printMainMenu();
+    }
+
+    for (Player player : waiverPool.getPlayers()) {
+      if (player.getJerseyNumber() == jerseyNumber) {
+        for (Team team : teams) {
+          if (
+            team.getName().equals(teamName) &&
+            team.getCapSpace() - player.getCapSpace() >= 0 &&
+            team.getPlayers().size() < team.maxPlayers
+          ) {
+            team.addPlayer(player);
+            waiverPool.removePlayer(player);
+            log.logWaiver(teamName, player.getName());
           }
         }
       }
     }
-
-    printMainMenu();
   }
 
   /**
@@ -147,8 +157,8 @@ public class Menu {
     for (Team team : teams) {
       for (Player player : team.getPlayers()) {
         if (
-          player.getName().contains(input) ||
-          player.getPosition().contains(input)
+          player.getName().toLowerCase().contains(input) ||
+          player.getPosition().toLowerCase().contains(input)
         ) {
           player.show();
         }
@@ -222,8 +232,11 @@ public class Menu {
         team2.removePlayer(player);
         team1.addPlayer(player);
       }
+
+      log.logTrade(team1Name, team2Name, team1Players, team2Players, true);
     } else {
       System.out.println("Trade not possible. Cap space exceeded.");
+      log.logTrade(team1Name, team2Name, team1Players, team2Players, false);
     }
   }
 
@@ -246,6 +259,10 @@ public class Menu {
 
     makeTrade(team1Players, team2Players);
     printMainMenu();
+    // log trade
+    //  > 01/01/2019 12:00:00 PM Team Name Player Name, Player Name <-> Team Name Player Name Confirmed
+    // like that use DateLocalTime
+
   }
 
   /**
@@ -351,6 +368,12 @@ public class Menu {
     System.out.println("Trade Players");
   }
 
+  public void printWaiverPlayers() {
+    for (Player player : waiverPool.getPlayers()) {
+      player.show();
+    }
+  }
+
   /**
    * The function prints the players of a given team, sorts them by jersey number, and prompts the user
    * for further actions.
@@ -362,6 +385,7 @@ public class Menu {
    */
   public void printPlayers(String teamName, boolean isTrade) {
     List<Player> players = new ArrayList<>();
+
     for (Team team : teams) {
       if (team.getName().equals(teamName)) {
         players = team.getPlayers();
@@ -375,9 +399,9 @@ public class Menu {
     }
 
     if (isTrade) {
-      System.out.println("Select Team with Player to Trade");
+      System.out.println("Select Team to Trade With");
     } else {
-      System.out.println("\n(1) Main Menu\n(2) Exit\n\nMake a selection:");
+      System.out.println("\n(1) Main Menu\n(2) Exit\n\nChoose a player: ");
     }
 
     String input = userInput.nextLine();
@@ -393,6 +417,31 @@ public class Menu {
         System.out.println("Invalid selection. Please try again.");
         printPlayers(teamName, isTrade);
     }
+
+    for (Player player : players) {
+      if (player.getJerseyNumber() == Integer.parseInt(input)) {
+        if (isTrade) {
+          if (team1Name.equals("")) {
+            team1Name = teamName;
+            System.out.println("Select Team to Trade With");
+          } else {
+            team2Name = teamName;
+          }
+        } else {
+          System.out.println("Waive this player (Y/N)?");
+          String waive = userInput.nextLine();
+          if (waive.equals("Y")) {
+            for (Team team : teams) {
+              if (team.getName().equals(teamName)) {
+                team.removePlayer(player);
+                waiverPool.addPlayer(player);
+                log.logWaiver(teamName, player.getName());
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -406,38 +455,52 @@ public class Menu {
    1. They user is first presented with a list of all teams in the league including a listing for the waiver wire.
       They also will need an option to exit from this menu and return back to the main menu.
 
-      Each team displayed must include: - Name of the team. - Team City/Location - Number of players current on the team's roster. - Cap space available for each team.
-     */
-
+    //   Each team displayed must include: - Name of the team. - Team City/Location - Number of players current on the team's roster. - Cap space available for each team.
+    //  */
     for (Team team : teams) {
       team.show();
     }
+    // for (Team team : teams) {
+    //   team.show(team.getName());
+    // }
 
-    String input = userInput.nextLine();
-    boolean isTrade = false;
+    // String input = userInput.nextLine();
+    // boolean isTrade = false;
 
-    switch (input) {
-      case "1":
-        printMainMenu();
-        break;
-      case "2":
-        System.exit(0);
-        break;
-      case "3":
-        printPlayers("Boston Bruins", isTrade);
-        break;
-      case "4":
-        printPlayers("Carolina Hurricanes", isTrade);
-        break;
-      case "5":
-        printPlayers("Pittsburgh Penguins", isTrade);
-        break;
-      case "6":
-        printPlayers("Seattle Kraken", isTrade);
-        break;
-      default:
-        System.out.println("Invalid selection. Please try again.");
-        printTeams();
+    // System.out.println();
+
+    // switch (input) {
+    //   case "1":
+    //     printMainMenu();
+    //     break;
+    //   case "2":
+    //     System.exit(0);
+    //     break;
+    //   case "3":
+    //     displayPlayers("Boston Bruins");
+    //     break;
+    //   case "4":
+    //     displayPlayers("Carolina Hurricanes");
+    //     break;
+    //   case "5":
+    //     displayPlayers("Pittsburgh Penguins");
+    //     break;
+    //   case "6":
+    //     displayPlayers("Seattle Kraken");
+    //     break;
+    //   default:
+    //     System.out.println("Invalid selection. Please try again.");
+    //     printTeams();
+    // }
+  }
+
+  public void displayPlayers(String teamName) {
+    for (Team team : teams) {
+      if (team.getName().equals(teamName)) {
+        for (Player player : team.getPlayers()) {
+          player.show();
+        }
+      }
     }
   }
 
@@ -445,52 +508,71 @@ public class Menu {
    * The function creates players and teams by reading data from files and populating the players and
    * teams lists accordingly.
    */
+
   public void createPlayersAndTeams() {
     int fileIndex = 0;
 
     for (File file : files) {
-      String fileName = file.getName();
-      String[] fileNameSplit = fileName.split("_");
-
-      teamName = fileNameSplit[0] + " " + fileNameSplit[1];
-
       try (Scanner fileScanner = new Scanner(file)) {
         while (fileScanner.hasNextLine()) {
           String line = fileScanner.nextLine();
 
           if (line.contains("POS")) {
             continue;
-          } else {
-            String[] data = line.split("\\|");
-
-            try {
-              int jerseyNumber = Integer.parseInt(data[0]);
-              String firstName = data[1];
-              String lastName = data[2];
-              String position = data[3];
-              double capSpace = Double.parseDouble(data[4]);
-
-              players.add(
-                new Player(
-                  firstName,
-                  lastName,
-                  capSpace,
-                  jerseyNumber,
-                  position
-                )
-              );
-            } catch (NumberFormatException e) {}
           }
-        }
+          // System.out.println(line);
 
-        if (fileIndex % 3 == 0 && fileIndex != 0) {
-          teams.add(new Team(teamName, players));
-          players.clear();
-        }
+          String[] playerData = line.split("\\|");
 
-        fileIndex++;
-      } catch (FileNotFoundException e) {}
-    }
+          int jerseyNumber = Integer.parseInt(playerData[0]);
+          String firstName = playerData[1];
+          String lastName = playerData[2];
+          String position = playerData[3];
+          double capSpace = Double.parseDouble(playerData[4]);
+
+          int stat1 = Integer.parseInt(playerData[5]);
+          int stat2 = Integer.parseInt(playerData[6]);
+          Map<String, Integer> statsMap = new HashMap<>();
+
+          // getting player stats
+          switch (position) {
+            case "Goalie":
+              statsMap.put("Shots Against", stat1);
+              statsMap.put("Saves", stat2);
+              break;
+            case "Defense":
+              statsMap.put("Hits", stat1);
+              statsMap.put("Blocked Shots", stat2);
+              break;
+            case "Forward":
+              statsMap.put("Goals", stat1);
+              statsMap.put("Assists", stat2);
+              break;
+            default:
+              break;
+          }
+
+          Player player = new Player(
+            jerseyNumber,
+            firstName,
+            lastName,
+            position,
+            capSpace,
+            statsMap
+          );
+          players.add(player);
+        } // every line
+      } catch (FileNotFoundException e) {
+        System.out.println("File not found");
+      }
+      fileIndex++;
+      if (fileIndex % 3 == 0) {
+        String[] teamNameArr = files[fileIndex - 1].getName().split("\\_");
+        String teamName = teamNameArr[0] + " " + teamNameArr[1];
+        teams.add(new Team(teamName, players));
+        players = new ArrayList<>();
+      }
+    } // every file
   }
 
   /**
