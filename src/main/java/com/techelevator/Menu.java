@@ -22,7 +22,7 @@ public class Menu {
   private String team1Name = "";
   private String team2Name = "";
 
-  private Logger log = new Logger();
+  private Logger logger = new Logger();
 
   public void run() {
     files = getFiles();
@@ -44,17 +44,16 @@ public class Menu {
 
     switch (input) {
       case "1":
-        printTeams();
-        break;
+        printTeams(); // doesn't work if u waive player -> ConcurrentModificationException
+        break; // i think it waives and then crashes
       case "2":
-        printTradeMenu();
+        printTradeMenu(); // doesn't work after the first team is selected
         break;
       case "3":
-        // ! print players from waiver pool after user selects team and add player to team (follow rules of trading player)
-        pickUpPlayer();
+        pickUpPlayer(); // works
         break;
       case "4":
-        findPlayer();
+        findPlayer(); // works
         break;
       case "5":
         System.exit(0);
@@ -77,6 +76,7 @@ public class Menu {
    remove player from waiver pool
  */
   public void pickUpPlayer() {
+    System.out.println();
     System.out.println("Pick up a Player");
 
     for (Team team : teams) {
@@ -110,8 +110,9 @@ public class Menu {
 
     printWaiverPlayers();
 
-    System.out.println(
-      "Enter the jersey number of the player you would like to pick up:"
+    System.out.println();
+    System.out.print(
+      "Enter the jersey number of the player you would like to pick up: "
     );
 
     int jerseyNumber = Integer.parseInt(userInput.nextLine());
@@ -130,7 +131,7 @@ public class Menu {
           ) {
             team.addPlayer(player);
             waiverPool.removePlayer(player);
-            log.logWaiver(teamName, player.getName());
+            logger.logWaiver(teamName, player.getName());
           }
         }
       }
@@ -147,9 +148,9 @@ public class Menu {
  */
   public void findPlayer() {
     System.out.println("Find Player");
-
-    System.out.println(
-      "Enter the first name, last name, or position of the player you would like to find:"
+    System.out.println();
+    System.out.print(
+      "Enter the first name, last name, or position of the player you would like to find: "
     );
 
     String input = userInput.nextLine();
@@ -233,10 +234,10 @@ public class Menu {
         team1.addPlayer(player);
       }
 
-      log.logTrade(team1Name, team2Name, team1Players, team2Players, true);
+      logger.logTrade(team1Name, team2Name, team1Players, team2Players, true);
     } else {
       System.out.println("Trade not possible. Cap space exceeded.");
-      log.logTrade(team1Name, team2Name, team1Players, team2Players, false);
+      logger.logTrade(team1Name, team2Name, team1Players, team2Players, false);
     }
   }
 
@@ -369,6 +370,12 @@ public class Menu {
   }
 
   public void printWaiverPlayers() {
+    if (waiverPool.getPlayers().size() == 0) {
+      System.out.println();
+      System.out.println("No players available for pickup.");
+      printMainMenu();
+    }
+
     for (Player player : waiverPool.getPlayers()) {
       player.show();
     }
@@ -399,47 +406,41 @@ public class Menu {
     }
 
     if (isTrade) {
-      System.out.println("Select Team to Trade With");
+      System.out.println();
+      System.out.print("Select Team to Trade With");
     } else {
-      System.out.println("\n(1) Main Menu\n(2) Exit\n\nChoose a player: ");
+      System.out.println();
+      System.out.print("Choose a player: ");
     }
 
     String input = userInput.nextLine();
 
-    switch (input) {
-      case "1":
-        printMainMenu();
-        break;
-      case "2":
-        System.exit(0);
-        break;
-      default:
-        System.out.println("Invalid selection. Please try again.");
-        printPlayers(teamName, isTrade);
-    }
-
     for (Player player : players) {
       if (player.getJerseyNumber() == Integer.parseInt(input)) {
-        if (isTrade) {
-          if (team1Name.equals("")) {
-            team1Name = teamName;
-            System.out.println("Select Team to Trade With");
-          } else {
-            team2Name = teamName;
-          }
-        } else {
-          System.out.println("Waive this player (Y/N)?");
-          String waive = userInput.nextLine();
-          if (waive.equals("Y")) {
-            for (Team team : teams) {
-              if (team.getName().equals(teamName)) {
-                team.removePlayer(player);
-                waiverPool.addPlayer(player);
-                log.logWaiver(teamName, player.getName());
-              }
+        player.show();
+        player.showStats();
+      }
+    }
+
+    // if select display teams we give option to waive player
+    if (isTrade) {} else {
+      System.out.println();
+      System.out.print("Waive this player (Y/N)? ");
+      String waive = userInput.nextLine();
+
+      if (waive.toLowerCase().equals("y")) {
+        for (Team team : teams) {
+          for (Player player : team.getPlayers()) {
+            if (player.getJerseyNumber() == Integer.parseInt(input)) {
+              waiverPool.addPlayer(player);
+              team.removePlayer(player);
+              logger.logWaiver(team.getName(), player.getName());
             }
           }
         }
+        printMainMenu();
+      } else {
+        printMainMenu();
       }
     }
   }
@@ -455,43 +456,45 @@ public class Menu {
    1. They user is first presented with a list of all teams in the league including a listing for the waiver wire.
       They also will need an option to exit from this menu and return back to the main menu.
 
-    //   Each team displayed must include: - Name of the team. - Team City/Location - Number of players current on the team's roster. - Cap space available for each team.
-    //  */
+     Each team displayed must include: - Name of the team. - Team City/Location - Number of players current on the team's roster. - Cap space available for each team.
+    */
+
     for (Team team : teams) {
       team.show();
     }
-    // for (Team team : teams) {
-    //   team.show(team.getName());
-    // }
 
-    // String input = userInput.nextLine();
-    // boolean isTrade = false;
+    selectTeam();
+  }
 
-    // System.out.println();
+  public void selectTeam() {
+    System.out.println();
+    System.out.print("Select a team to view players (Q for quit): ");
+    String input = userInput.nextLine();
 
-    // switch (input) {
-    //   case "1":
-    //     printMainMenu();
-    //     break;
-    //   case "2":
-    //     System.exit(0);
-    //     break;
-    //   case "3":
-    //     displayPlayers("Boston Bruins");
-    //     break;
-    //   case "4":
-    //     displayPlayers("Carolina Hurricanes");
-    //     break;
-    //   case "5":
-    //     displayPlayers("Pittsburgh Penguins");
-    //     break;
-    //   case "6":
-    //     displayPlayers("Seattle Kraken");
-    //     break;
-    //   default:
-    //     System.out.println("Invalid selection. Please try again.");
-    //     printTeams();
-    // }
+    if (input.equals("Q") || input.equals("q")) {
+      printMainMenu();
+    }
+
+    switch (input) {
+      case "1":
+        teamName = "Boston Bruins";
+        break;
+      case "2":
+        teamName = "Carolina Hurricanes";
+        break;
+      case "3":
+        teamName = "Pittsburgh Penguins";
+        break;
+      case "4":
+        teamName = "Seattle Kraken";
+        break;
+      default:
+        System.out.println("Invalid selection. Please try again.");
+        selectTeam();
+    }
+
+    System.out.println();
+    printPlayers(teamName, false);
   }
 
   public void displayPlayers(String teamName) {

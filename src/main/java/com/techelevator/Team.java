@@ -24,7 +24,7 @@ public class Team {
 
   public Team(String name, List<Player> players) {
     this.name = name;
-    this.players = new ArrayList<>();
+    this.players = players;
   }
 
   public Player findPlayerByJerseyNumber(int jerseyNumber) {
@@ -37,8 +37,7 @@ public class Team {
   }
 
   public void show() {
-    String message =
-      getPlayers().size() + " - Cap Space: " + this.getCapSpace();
+    String message = getPlayers().size() + " - Cap Space: " + getCapSpace();
 
     switch (name) {
       case "Boston Bruins":

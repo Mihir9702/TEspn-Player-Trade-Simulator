@@ -1,5 +1,6 @@
 package com.techelevator;
 
+import com.techelevator.util.MoneyFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,15 +32,21 @@ public class Player {
   public void show() {
     System.out.println(
       jerseyNumber +
-      " " +
+      ") " +
       firstName +
       " " +
       lastName +
       " " +
       position +
       " " +
-      capSpace
+      MoneyFormatter.formatMoney(capSpace)
     );
+  }
+
+  public void showStats() {
+    for (Map.Entry<String, Integer> entry : stats.entrySet()) {
+      System.out.println(entry.getKey() + ": " + entry.getValue());
+    }
   }
 
   public double getCapSpace() {
