@@ -36,6 +36,7 @@ public class Menu {
    * selection.
    */
   public void printMainMenu() {
+    System.out.println();
     System.out.print(
       "\n(1) Display Teams\n(2) Make a Trade\n(3) Pick up a Player\n(4) Find Player\n(5) Exit\n\nMake a selection: "
     );
@@ -155,6 +156,7 @@ public class Menu {
 
     String input = userInput.nextLine();
 
+    // find player in team
     for (Team team : teams) {
       for (Player player : team.getPlayers()) {
         if (
@@ -166,6 +168,7 @@ public class Menu {
       }
     }
 
+    // find player in waiver pool
     for (Player player : waiverPool.getPlayers()) {
       if (
         player.getName().contains(input) || player.getPosition().contains(input)
@@ -182,8 +185,7 @@ public class Menu {
    * if so, it performs the trade by removing players from one team and adding them to the other team.
    *
    * @param team1Players A list of players that team 1 wants to trade.
-   * @param team2Players The `team2Players` parameter is a list of players that are being traded from
-   * `team2` to `team1`.
+   * @param team1Players A list of players that team 2 wants to trade.
    */
   public void makeTrade(List<Player> team1Players, List<Player> team2Players) {
     Team team1 = null;
@@ -197,8 +199,8 @@ public class Menu {
       }
     }
 
-    double team1TotalCapSpace = getTradingPlayersTotalCapSpace(0, team1Players);
-    double team2TotalCapSpace = getTradingPlayersTotalCapSpace(0, team2Players);
+    double team1TotalCapSpace = getTradingPlayersTotalCapSpace(team1Players);
+    double team2TotalCapSpace = getTradingPlayersTotalCapSpace(team2Players);
 
     boolean team1HasEnoughPlayers =
       team1.getPlayers().size() -
@@ -241,10 +243,6 @@ public class Menu {
     }
   }
 
-  /**
-   * The function prints a trade menu, allows the user to select teams and players to trade, makes the
-   * trade, and then prints the main menu.
-   */
   public void printTradeMenu() {
     System.out.println("Select Team with Player to Trade");
     System.out.println();
@@ -260,24 +258,16 @@ public class Menu {
 
     makeTrade(team1Players, team2Players);
     printMainMenu();
-    // log trade
-    //  > 01/01/2019 12:00:00 PM Team Name Player Name, Player Name <-> Team Name Player Name Confirmed
-    // like that use DateLocalTime
-
   }
 
   /**
    * The function calculates the total cap space of a team by summing up the cap space of each player.
    *
-   * @param teamCapSpace The initial cap space of the team before considering any players. It is a double
-   * value.
    * @param players A list of Player objects representing the players on a team.
    * @return The method is returning the total cap space of a team, which is a double value.
    */
-  public double getTradingPlayersTotalCapSpace(
-    double teamCapSpace,
-    List<Player> players
-  ) {
+  public double getTradingPlayersTotalCapSpace(List<Player> players) {
+    double teamCapSpace = 0.00;
     for (Player player : players) {
       teamCapSpace += player.getCapSpace();
     }
