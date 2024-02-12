@@ -5,12 +5,6 @@ import java.util.*;
 
 public class Menu {
 
-  /* to do
-   * print trade confirmation
-   * log
-   * unit tests
-   */
-
   private List<Team> teams = new ArrayList<>();
   private List<Player> players = new ArrayList<>();
   private WaiverPool waiverPool = new WaiverPool();
@@ -37,11 +31,6 @@ public class Menu {
     printMainMenu();
   }
 
-  /**
-   * The function `printMainMenu` displays a menu with options for displaying teams, making a trade,
-   * picking up a player, finding a player, or exiting the program, and prompts the user to make a
-   * selection.
-   */
   public void printMainMenu() {
     System.out.println();
     System.out.print(
@@ -52,8 +41,8 @@ public class Menu {
 
     switch (input) {
       case "1":
-        printTeams(); // doesn't work if u waive player -> ConcurrentModificationException
-        break; // i think it waives and then crashes
+        printTeams(); // doesn't work if u waive player
+        break; // changing team.players as we iterate over it -> ConcurrentModificationException
       case "2":
         printTradeMenu(); // doesn't work after the first team is selected
         break;
@@ -188,13 +177,15 @@ public class Menu {
   }
 
   /**
-   * The function `makeTrade` checks if two teams have enough players and cap space to make a trade, and
-   * if so, it performs the trade by removing players from one team and adding them to the other team.
+   * The function `confirmTrade` checks if two teams have enough players and cap space to make a trade
    *
    * @param team1Players A list of players that team 1 wants to trade.
    * @param team1Players A list of players that team 2 wants to trade.
    */
-  public void makeTrade(List<Player> team1Players, List<Player> team2Players) {
+  public void confirmTrade(
+    List<Player> team1Players,
+    List<Player> team2Players
+  ) {
     Team team1 = null;
     Team team2 = null;
 
@@ -209,30 +200,50 @@ public class Menu {
     double team1TotalCapSpace = getTradingPlayersTotalCapSpace(team1Players);
     double team2TotalCapSpace = getTradingPlayersTotalCapSpace(team2Players);
 
-    boolean team1HasEnoughPlayers =
-      team1.getPlayers().size() -
-      team1Players.size() +
-      team2Players.size() <=
-      team1.maxPlayers;
-
-    boolean team2HasEnoughPlayers =
-      team2.getPlayers().size() -
-      team2Players.size() +
-      team1Players.size() <=
-      team2.maxPlayers;
-
-    boolean team1HasEnoughCapSpace =
-      team1.getCapSpace() - team2TotalCapSpace >= 0;
-
     boolean team2HasEnoughCapSpace =
       team2.getCapSpace() - team1TotalCapSpace >= 0;
 
-    if (
-      team1HasEnoughPlayers &&
-      team2HasEnoughPlayers &&
-      team1HasEnoughCapSpace &&
-      team2HasEnoughCapSpace
-    ) {
+    System.out.println("Trade ");
+    team1Players.forEach(player -> System.out.print(player.getName() + " "));
+    System.out.println("for ");
+    team2Players.forEach(player -> System.out.print(player.getName() + " "));
+    System.out.println();
+    System.out.print("Commit Trade (Y/N)? ");
+
+    if (userInput.nextLine().toLowerCase().equals("y")) {
+      boolean team1HasEnoughPlayers =
+        team1.getPlayers().size() -
+        team1Players.size() +
+        team2Players.size() <=
+        team1.maxPlayers;
+
+      boolean team2HasEnoughPlayers =
+        team2.getPlayers().size() -
+        team2Players.size() +
+        team1Players.size() <=
+        team2.maxPlayers;
+
+      boolean team1HasEnoughCapSpace =
+        team1.getCapSpace() - team2TotalCapSpace >= 0;
+
+      boolean isTradeable =
+        team1HasEnoughPlayers &&
+        team2HasEnoughPlayers &&
+        team1HasEnoughCapSpace &&
+        team2HasEnoughCapSpace;
+
+      makeTrade(team1Players, team2Players, team1, team2, isTradeable);
+    } else printMainMenu();
+  }
+
+  public void makeTrade(
+    List<Player> team1Players,
+    List<Player> team2Players,
+    Team team1,
+    Team team2,
+    boolean isTradeable
+  ) {
+    if (isTradeable) {
       for (Player player : team1Players) {
         team1.removePlayer(player);
         team2.addPlayer(player);
@@ -243,8 +254,11 @@ public class Menu {
         team1.addPlayer(player);
       }
 
+      System.out.println();
+      System.out.println("Trade successful.");
       logger.logTrade(team1Name, team2Name, team1Players, team2Players, true);
     } else {
+      System.out.println();
       System.out.println("Trade not possible. Cap space exceeded.");
       logger.logTrade(team1Name, team2Name, team1Players, team2Players, false);
     }
@@ -253,17 +267,132 @@ public class Menu {
   public void printTradeMenu() {
     System.out.println("Select Team with Player to Trade");
     System.out.println();
-    System.out.println(
-      "\n(1) Boston Bruins\n(2) Carolina Hurricanes\n(3) Pittsburgh Penguins\n(4) Seattle Kraken\n\nMake a selection:"
-    );
 
+    for (Team team : teams) {
+      team.show();
+    }
+
+    System.out.println();
+    System.out.print("Select Team: ");
+
+    String input = userInput.nextLine();
+
+    switch (input) {
+      case "1":
+        team1Name = "Boston Bruins";
+        break;
+      case "2":
+        team1Name = "Carolina Hurricanes";
+        break;
+      case "3":
+        team1Name = "Pittsburgh Penguins";
+        break;
+      case "4":
+        team1Name = "Seattle Kraken";
+        break;
+      default:
+        System.out.println("Invalid selection. Please try again.");
+        printTradeMenu();
+    }
+
+    System.out.println();
+
+    for (Team team : teams) {
+      if (team.getName().equals(team1Name)) {
+        for (Player player : team.getPlayers()) {
+          player.show();
+        }
+      }
+    }
+
+    System.out.println();
+    System.out.print("Select Player to Trade: ");
+
+    String[] team1JerseyNumbers = userInput.nextLine().split("\\ ");
     List<Player> team1Players = new ArrayList<>();
+
+    for (String team1JerseyNumber : team1JerseyNumbers) {
+      for (Team team : teams) {
+        if (team.getName().equals(team1Name)) {
+          for (Player player : team.getPlayers()) {
+            if (
+              player.getJerseyNumber() == Integer.parseInt(team1JerseyNumber)
+            ) {
+              team1Players.add(player);
+            }
+          }
+        }
+      }
+    }
+
+    // now for team2
+    System.out.println();
+    System.out.println(
+      "Select Team with which to trade (cannot trade to the same team)"
+    );
+    System.out.println();
+
+    for (Team team : teams) {
+      if (!team.getName().equals(team1Name)) {
+        team.show();
+      }
+    }
+
+    System.out.println();
+    System.out.print("Select Team: ");
+
+    input = userInput.nextLine();
+
+    switch (input) {
+      case "1":
+        team2Name = "Boston Bruins";
+        break;
+      case "2":
+        team2Name = "Carolina Hurricanes";
+        break;
+      case "3":
+        team2Name = "Pittsburgh Penguins";
+        break;
+      case "4":
+        team2Name = "Seattle Kraken";
+        break;
+      default:
+        System.out.println("Invalid selection. Please try again.");
+        printTradeMenu();
+    }
+
+    System.out.println();
+
+    for (Team team : teams) {
+      if (team.getName().equals(team2Name)) {
+        for (Player player : team.getPlayers()) {
+          player.show();
+        }
+      }
+    }
+
+    System.out.println();
+
+    System.out.print("Select Player to Trade: ");
+
+    String[] team2JerseyNumbers = userInput.nextLine().split("\\ ");
     List<Player> team2Players = new ArrayList<>();
 
-    team1Players = selectTeamAndShowPlayersToTrade(team1Players, team1Name);
-    team2Players = selectTeamAndShowPlayersToTrade(team2Players, team2Name);
+    for (String team2JerseyNumber : team2JerseyNumbers) {
+      for (Team team : teams) {
+        if (team.getName().equals(team2Name)) {
+          for (Player player : team.getPlayers()) {
+            if (
+              player.getJerseyNumber() == Integer.parseInt(team2JerseyNumber)
+            ) {
+              team2Players.add(player);
+            }
+          }
+        }
+      }
+    }
 
-    makeTrade(team1Players, team2Players);
+    confirmTrade(team1Players, team2Players);
     printMainMenu();
   }
 
@@ -360,10 +489,6 @@ public class Menu {
     }
 
     return players;
-  }
-
-  public void tradePlayers() {
-    System.out.println("Trade Players");
   }
 
   public void printWaiverPlayers() {
@@ -500,7 +625,6 @@ public class Menu {
    * The function creates players and teams by reading data from files and populating the players and
    * teams lists accordingly.
    */
-
   public void createPlayersAndTeams() {
     int fileIndex = 0;
 
@@ -569,7 +693,6 @@ public class Menu {
 
   /**
    * The function "getFiles" returns an array of File objects representing the files in the "TeamData"
-   * folder.
    *
    * @return The method is returning an array of File objects.
    */
