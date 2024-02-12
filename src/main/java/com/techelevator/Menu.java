@@ -41,16 +41,16 @@ public class Menu {
 
     switch (input) {
       case "1":
-        printTeams(); // doesn't work if u waive player
-        break; // changing team.players as we iterate over it -> ConcurrentModificationException
+        printTeams();
+        break;
       case "2":
-        printTradeMenu(); // doesn't work after the first team is selected
+        printTradeMenu();
         break;
       case "3":
-        pickUpPlayer(); // works
+        pickUpPlayer();
         break;
       case "4":
-        findPlayer(); // works
+        findPlayer();
         break;
       case "5":
         System.exit(0);
