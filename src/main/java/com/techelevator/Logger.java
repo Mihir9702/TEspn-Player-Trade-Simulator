@@ -1,36 +1,51 @@
 package com.techelevator;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.List;
 
 public class Logger {
 
-  private static final String LOG_FILE_PATH = "Log.txt";
+  private static final String LOG_PATH = "log.txt";
 
-  public static void logTransaction(String transaction) {
-    String timestamp = getCurrentTimestamp();
-    String logEntry = timestamp + " " + transaction;
+  public void log(String message) {
+    //  > 01/01/2019 12:00:00 PM
+    SimpleDateFormat dateFormat = new SimpleDateFormat("mm/dd/yyyy hh:mm:ss a");
+    String date = dateFormat.format(new Date());
 
-    try (
-      BufferedWriter writer = new BufferedWriter(
-        new FileWriter(LOG_FILE_PATH, true)
-      )
-    ) {
-      writer.write(logEntry);
-      writer.newLine();
-    } catch (IOException e) {
-      System.err.println("Error writing to log file: " + e.getMessage());
+    writeLog(date + " " + message);
+  }
+
+  public void writeLog(String message) {
+    try (PrintWriter writer = new PrintWriter(LOG_PATH)) {
+      writer.println(message);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
     }
   }
 
-  private static String getCurrentTimestamp() {
-    LocalDateTime now = LocalDateTime.now();
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(
-      "MM/dd/yyyy hh:mm:ss a"
-    );
-    return now.format(formatter);
+  public void logTrade(
+    String team1Name,
+    String team2Name,
+    List<Player> team1Players,
+    List<Player> team2Players,
+    boolean isSuccessful
+  ) {
+    //  > 01/01/2019 12:00:00 PM (Team Name) [Player Name, Player Name] <-> (Team Name) [Player Name] (Confirmed / Denied)
+
+    String status = isSuccessful ? "Confirmed" : "Denied";
+    String team1Message = team1Name + " " + team1Players;
+    String team2Message = team2Name + " " + team2Players;
+    String message = team1Message + " <-> " + team2Message + " " + status;
+
+    log(message);
+  }
+
+  public void logWaiver(String teamName, String playerName) {
+    String message = teamName + " " + playerName + " -- " + "Waived";
+    log(message);
   }
 }
