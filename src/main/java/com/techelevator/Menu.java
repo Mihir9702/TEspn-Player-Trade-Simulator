@@ -200,9 +200,6 @@ public class Menu {
     double team1TotalCapSpace = getTradingPlayersTotalCapSpace(team1Players);
     double team2TotalCapSpace = getTradingPlayersTotalCapSpace(team2Players);
 
-    boolean team2HasEnoughCapSpace =
-      team2.getCapSpace() - team1TotalCapSpace >= 0;
-
     System.out.println("Trade ");
     team1Players.forEach(player -> System.out.print(player.getName() + " "));
     System.out.println("for ");
@@ -225,6 +222,9 @@ public class Menu {
 
       boolean team1HasEnoughCapSpace =
         team1.getCapSpace() - team2TotalCapSpace >= 0;
+
+      boolean team2HasEnoughCapSpace =
+        team2.getCapSpace() - team1TotalCapSpace >= 0;
 
       boolean isTradeable =
         team1HasEnoughPlayers &&
@@ -325,7 +325,6 @@ public class Menu {
       }
     }
 
-    // now for team2
     System.out.println();
     System.out.println(
       "Select Team with which to trade (cannot trade to the same team)"
@@ -372,7 +371,6 @@ public class Menu {
     }
 
     System.out.println();
-
     System.out.print("Select Player to Trade: ");
 
     String[] team2JerseyNumbers = userInput.nextLine().split("\\ ");
@@ -410,87 +408,6 @@ public class Menu {
     return teamCapSpace;
   }
 
-  /**
-   * The function allows the user to select a team and then displays the players available for trade from
-   * that team.
-   *
-   * @param players A list of Player objects representing all the players in the system.
-   * @param teamName The `teamName` parameter is a String that represents the name of the team for which
-   * the players are selected and shown for trading.
-   * @return The method is returning a List<Player> object.
-   */
-  public List<Player> selectTeamAndShowPlayersToTrade(
-    List<Player> players,
-    String teamName
-  ) {
-    String input = userInput.nextLine();
-    boolean isTrade = true;
-
-    switch (input) {
-      case "1":
-        printMainMenu();
-        break;
-      case "2":
-        System.exit(0);
-        break;
-      case "3":
-        teamName = "Boston Bruins"; // have to check if this works
-        printPlayers(teamName, isTrade);
-        players = getPlayersFromTeamToTrade(teamName);
-        break;
-      case "4":
-        teamName = "Carolina Hurricanes";
-        printPlayers(teamName, isTrade);
-        players = getPlayersFromTeamToTrade(teamName);
-        break;
-      case "5":
-        teamName = "Pittsburgh Penguins";
-        printPlayers(teamName, isTrade);
-        players = getPlayersFromTeamToTrade(teamName);
-        break;
-      case "6":
-        teamName = "Seattle Kraken";
-        printPlayers(teamName, isTrade);
-        players = getPlayersFromTeamToTrade(teamName);
-        break;
-      default:
-        System.out.println("Invalid selection. Please try again.");
-        printTeams();
-    }
-
-    return players;
-  }
-
-  /**
-   * The function retrieves a list of players from a specific team based on the jersey numbers provided
-   * by the user.
-   *
-   * @param teamName The teamName parameter is a String that represents the name of the team from which
-   * you want to get the players to trade.
-   * @return The method is returning a List of Player objects.
-   */
-  public List<Player> getPlayersFromTeamToTrade(String teamName) {
-    System.out.println(
-      "Enter the jersey numbers of the players you would like to trade (separated by spaces):"
-    );
-
-    List<Player> players = new ArrayList<>();
-    String[] jerseyNumbers = userInput.nextLine().split("\\ ");
-    for (Team team : teams) {
-      if (team.getName().equals(teamName)) {
-        for (String jerseyNumber : jerseyNumbers) {
-          for (Player player : team.getPlayers()) {
-            if (player.getJerseyNumber() == Integer.parseInt(jerseyNumber)) {
-              players.add(player);
-            }
-          }
-        }
-      }
-    }
-
-    return players;
-  }
-
   public void printWaiverPlayers() {
     if (waiverPool.getPlayers().size() == 0) {
       System.out.println();
@@ -512,7 +429,7 @@ public class Menu {
    * is true, the method will prompt the user to select a team to trade with. If isTrade is false, the
    * method will display a menu with options to go back to the main menu or exit the program
    */
-  public void printPlayers(String teamName, boolean isTrade) {
+  public void printPlayers(String teamName) {
     List<Player> players = new ArrayList<>();
 
     for (Team team : teams) {
@@ -527,13 +444,8 @@ public class Menu {
       player.show();
     }
 
-    if (isTrade) {
-      System.out.println();
-      System.out.print("Select Team to Trade With");
-    } else {
-      System.out.println();
-      System.out.print("Choose a player: ");
-    }
+    System.out.println();
+    System.out.print("Choose a player: ");
 
     String input = userInput.nextLine();
 
@@ -545,30 +457,26 @@ public class Menu {
     }
 
     // if select display teams we give option to waive player
-    if (isTrade) {
-      selectTeam();
-    } else {
-      System.out.println();
-      System.out.print("Waive this player (Y/N)? ");
-      String waive = userInput.nextLine();
+    System.out.println();
+    System.out.print("Waive this player (Y/N)? ");
+    String waive = userInput.nextLine();
 
-      if (waive.toLowerCase().equals("y")) {
-        for (Team team : teams) {
-          if (team.getName().equals(teamName)) {
-            for (Player player : team.getPlayers()) {
-              if (player.getJerseyNumber() == Integer.parseInt(input)) {
-                waiverPool.addPlayer(player);
-                // team.removePlayer(player); // ! doesn't work
-                logger.logWaiver(teamName, player.getName());
-              }
+    if (waive.toLowerCase().equals("y")) {
+      for (Team team : teams) {
+        if (team.getName().equals(teamName)) {
+          for (Player player : team.getPlayers()) {
+            if (player.getJerseyNumber() == Integer.parseInt(input)) {
+              waiverPool.addPlayer(player);
+              // team.removePlayer(player); // ! doesn't work
+              logger.logWaiver(teamName, player.getName());
             }
           }
         }
-
-        printMainMenu();
-      } else {
-        printMainMenu();
       }
+
+      printMainMenu();
+    } else {
+      printMainMenu();
     }
   }
 
@@ -608,7 +516,7 @@ public class Menu {
     }
 
     System.out.println();
-    printPlayers(teamName, false);
+    printPlayers(teamName);
   }
 
   public void displayPlayers(String teamName) {
@@ -621,10 +529,6 @@ public class Menu {
     }
   }
 
-  /**
-   * The function creates players and teams by reading data from files and populating the players and
-   * teams lists accordingly.
-   */
   public void createPlayersAndTeams() {
     int fileIndex = 0;
 

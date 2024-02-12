@@ -10,7 +10,7 @@ public class Logger {
 
   private String LOG_PATH;
 
-  // ! not working, its overwriting the file not appending
+  // ! bug -> its overwriting the file not appending
 
   public Logger(String path) {
     this.LOG_PATH = path;
