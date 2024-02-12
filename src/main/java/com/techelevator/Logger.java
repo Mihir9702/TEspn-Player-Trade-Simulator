@@ -16,6 +16,13 @@ public class Logger {
     this.LOG_PATH = path;
   }
 
+  /**
+   * The log function formats the current date and time and appends it to the given message before
+   * writing it to a log file.
+   *
+   * @param message The "message" parameter is a string that represents the log message that you want to
+   * write to the log file.
+   */
   public void log(String message) {
     //  > 01/01/2019 12:00:00 PM
     SimpleDateFormat dateFormat = new SimpleDateFormat("mm/dd/yyyy hh:mm:ss a");
@@ -24,6 +31,12 @@ public class Logger {
     writeLog(date + " " + message);
   }
 
+  /**
+   * The writeLog function writes a message to a log file.
+   *
+   * @param message The message parameter is a string that represents the log message that you want to
+   * write to the log file.
+   */
   public void writeLog(String message) {
     try (PrintWriter writer = new PrintWriter(LOG_PATH)) {
       writer.println(message);
@@ -32,6 +45,16 @@ public class Logger {
     }
   }
 
+  /**
+   * The logTrade function logs a trade between two teams, including the team names, player names, and
+   * whether the trade was successful or not.
+   *
+   * @param team1Name The name of the first team involved in the trade.
+   * @param team2Name The name of the second team involved in the trade.
+   * @param team1Players A list of players from team 1 involved in the trade.
+   * @param team2Players A list of players from team 2 involved in the trade.
+   * @param isSuccessful A boolean value indicating whether the trade was successful or not.
+   */
   public void logTrade(
     String team1Name,
     String team2Name,
@@ -49,6 +72,13 @@ public class Logger {
     log(message);
   }
 
+  /**
+   * The logWaiver function logs a message indicating that a player has been waived from a team.
+   *
+   * @param teamName The name of the team that the player is being waived from.
+   * @param playerName The playerName parameter is a String that represents the name of the player who is
+   * being waived.
+   */
   public void logWaiver(String teamName, String playerName) {
     String message = teamName + " " + playerName + " -- " + "Waived";
     log(message);

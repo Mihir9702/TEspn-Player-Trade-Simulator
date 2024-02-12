@@ -29,6 +29,14 @@ public class Team {
     this.players = players;
   }
 
+  /**
+   * The function finds a player in a list of players based on their jersey number.
+   *
+   * @param jerseyNumber The jerseyNumber parameter is an integer representing the jersey number of a
+   * player.
+   * @return The method is returning a Player object that matches the given jersey number. If no player
+   * is found with the given jersey number, it will return null.
+   */
   public Player findPlayerByJerseyNumber(int jerseyNumber) {
     for (Player player : players) {
       if (player.getJerseyNumber() == jerseyNumber) {

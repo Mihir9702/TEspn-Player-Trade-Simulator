@@ -236,6 +236,17 @@ public class Menu {
     } else printMainMenu();
   }
 
+  /**
+   * The makeTrade function performs a trade between two teams by removing players from one team and
+   * adding them to the other, and logs the trade using a logger.
+   *
+   * @param team1Players A list of players from team 1 that will be traded to team 2.
+   * @param team2Players A list of players from team 2 that will be traded to team 1.
+   * @param team1 The parameter `team1` represents the first team involved in the trade.
+   * @param team2 The parameter `team2` represents the first team involved in the trade.
+   * @param isTradeable A boolean value indicating whether the trade is allowed or not based on cap space
+   * constraints.
+   */
   public void makeTrade(
     List<Player> team1Players,
     List<Player> team2Players,
