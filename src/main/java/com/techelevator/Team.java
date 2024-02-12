@@ -1,5 +1,6 @@
 package com.techelevator;
 
+import com.techelevator.util.MoneyFormatter;
 import java.util.List;
 
 public class Team {
@@ -47,7 +48,10 @@ public class Team {
   }
 
   public void show() {
-    String message = getPlayers().size() + " - Cap Space: " + getCapSpace();
+    String message =
+      getPlayers().size() +
+      " - Cap Space: " +
+      MoneyFormatter.formatMoney(getCapSpace());
 
     switch (name) {
       case "Boston Bruins":
