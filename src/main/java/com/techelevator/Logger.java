@@ -3,13 +3,18 @@ package com.techelevator;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
 public class Logger {
 
-  private static final String LOG_PATH = "log.txt";
+  private String LOG_PATH;
+
+  // ! not working, its overwriting the file not appending
+
+  public Logger(String path) {
+    this.LOG_PATH = path;
+  }
 
   public void log(String message) {
     //  > 01/01/2019 12:00:00 PM

@@ -1,7 +1,6 @@
 package com.techelevator;
 
 import com.techelevator.util.MoneyFormatter;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Player {

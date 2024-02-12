@@ -1,6 +1,5 @@
 package com.techelevator;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Team {
@@ -9,6 +8,8 @@ public class Team {
   private List<Player> players;
   private double capSpace = 80_500_000.00;
   public int maxPlayers = 23;
+
+  // ! removePlayer() not working ConcurrentModificationException
 
   public double getCapSpace() {
     return capSpace;

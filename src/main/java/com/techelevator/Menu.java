@@ -14,7 +14,7 @@ public class Menu {
   private List<Team> teams = new ArrayList<>();
   private List<Player> players = new ArrayList<>();
   private WaiverPool waiverPool = new WaiverPool();
-  private File[] files;
+  private File[] files = getFiles();
 
   private String teamName = "";
   private Scanner userInput = new Scanner(System.in);
@@ -22,10 +22,17 @@ public class Menu {
   private String team1Name = "";
   private String team2Name = "";
 
-  private Logger logger = new Logger();
+  private Logger logger = new Logger("log.txt");
+
+  public List<Player> getPlayers() {
+    return players;
+  }
+
+  public List<Team> getTeams() {
+    return teams;
+  }
 
   public void run() {
-    files = getFiles();
     createPlayersAndTeams();
     printMainMenu();
   }
@@ -413,21 +420,26 @@ public class Menu {
     }
 
     // if select display teams we give option to waive player
-    if (isTrade) {} else {
+    if (isTrade) {
+      selectTeam();
+    } else {
       System.out.println();
       System.out.print("Waive this player (Y/N)? ");
       String waive = userInput.nextLine();
 
       if (waive.toLowerCase().equals("y")) {
         for (Team team : teams) {
-          for (Player player : team.getPlayers()) {
-            if (player.getJerseyNumber() == Integer.parseInt(input)) {
-              waiverPool.addPlayer(player);
-              team.removePlayer(player);
-              logger.logWaiver(team.getName(), player.getName());
+          if (team.getName().equals(teamName)) {
+            for (Player player : team.getPlayers()) {
+              if (player.getJerseyNumber() == Integer.parseInt(input)) {
+                waiverPool.addPlayer(player);
+                // team.removePlayer(player); // ! doesn't work
+                logger.logWaiver(teamName, player.getName());
+              }
             }
           }
         }
+
         printMainMenu();
       } else {
         printMainMenu();
@@ -435,20 +447,7 @@ public class Menu {
     }
   }
 
-  /**
-   * The function "displayTeams" displays a list of all teams in a league, including their name,
-   * location, number of players on the roster, and available cap space, and provides options for the
-   * user to navigate to other menus or exit the program.
-   */
   public void printTeams() {
-    /**
-     * 
-   1. They user is first presented with a list of all teams in the league including a listing for the waiver wire.
-      They also will need an option to exit from this menu and return back to the main menu.
-
-     Each team displayed must include: - Name of the team. - Team City/Location - Number of players current on the team's roster. - Cap space available for each team.
-    */
-
     for (Team team : teams) {
       team.show();
     }
