@@ -1,0 +1,4 @@
+37/12/2024 04:37:25 PM Boston Bruins Jeremy Swayman -- Waived
+59/12/2024 04:59:34 PM Boston Bruins Jake DeBrusk -- Waived
+59/12/2024 04:59:39 PM Pittsburgh Penguins Jeff Carter -- Waived
+59/12/2024 04:59:54 PM Carolina Hurricanes [com.techelevator.Player@523884b2] <-> Pittsburgh Penguins [com.techelevator.Player@5b275dab] Confirmed

@@ -1,6 +1,7 @@
 package com.techelevator;
 
-import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,9 +39,12 @@ public class Logger {
    * write to the log file.
    */
   public void writeLog(String message) {
-    try (PrintWriter writer = new PrintWriter(LOG_PATH)) {
+    try (
+      FileOutputStream fileOutputStream = new FileOutputStream(LOG_PATH, true);
+      PrintWriter writer = new PrintWriter(fileOutputStream)
+    ) {
       writer.println(message);
-    } catch (FileNotFoundException e) {
+    } catch (IOException e) {
       e.printStackTrace();
     }
   }

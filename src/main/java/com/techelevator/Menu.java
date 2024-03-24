@@ -61,6 +61,15 @@ public class Menu {
     }
   }
 
+  // public void tradeMenu() {
+  //   getPlayersfromteam1();
+  //   getPlayersfromteam2();
+  //   if (validate()) {
+  //     makeTrade();
+  //     logTrade();
+  //   }
+  // }
+
   /**
  * The `pickUpPlayer()` function allows the user to select a team, view the players available for
  * pickup from the waiver pool on that team, select a player to pick up, and add the player to their
@@ -177,10 +186,11 @@ public class Menu {
   }
 
   /**
-   * The function `confirmTrade` checks if two teams have enough players and cap space to make a trade
+   * The `confirmTrade` function in Java confirms a trade between two teams by checking if both teams
+   * have enough players and cap space, and then making the trade if conditions are met.
    *
-   * @param team1Players A list of players that team 1 wants to trade.
-   * @param team1Players A list of players that team 2 wants to trade.
+   * @param team1Players A list of players from team 1 who are involved in the trade.
+   * @param team2Players A list of players from team 2 who are involved in the trade.
    */
   public void confirmTrade(
     List<Player> team1Players,
@@ -449,7 +459,8 @@ public class Menu {
       }
     }
 
-    players.sort(Comparator.comparing(Player::getJerseyNumber));
+    players.sort((a, b) -> a.getJerseyNumber() - b.getJerseyNumber());
+    // players.sort(Comparator.comparing(Player::getJerseyNumber));
 
     for (Player player : players) {
       player.show();
@@ -472,17 +483,24 @@ public class Menu {
     System.out.print("Waive this player (Y/N)? ");
     String waive = userInput.nextLine();
 
+    Team t = null;
+    Player p = null;
     if (waive.toLowerCase().equals("y")) {
       for (Team team : teams) {
         if (team.getName().equals(teamName)) {
           for (Player player : team.getPlayers()) {
             if (player.getJerseyNumber() == Integer.parseInt(input)) {
               waiverPool.addPlayer(player);
-              // team.removePlayer(player); // ! doesn't work
+              t = team;
+              p = player;
               logger.logWaiver(teamName, player.getName());
             }
           }
         }
+      }
+
+      if (p != null && t != null) {
+        t.removePlayer(p);
       }
 
       printMainMenu();
