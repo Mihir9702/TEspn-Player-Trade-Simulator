@@ -26,13 +26,13 @@ TEspn Player Trade Simulator is an application developed for the newest media mo
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/Mihir9702/fantasy-hockey.git
+    git clone https://github.com/Mihir9702/TEspn-Player-Trade-Simulator.git
     ```
 
 2. Navigate to the project directory:
 
     ```bash
-    cd fantasy-hockey
+    cd TEspn-Player-Trade-Simulator
     ```
 
 3. Compile and run the application.
